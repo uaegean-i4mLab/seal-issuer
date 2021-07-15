@@ -1,0 +1,70 @@
+version: '3'
+
+services:  
+   memcached:
+    image: sameersbn/memcached:1.5.6-2
+    ports:
+      - 11111:11211
+
+
+   uportissuer:
+    image: endimion13/seal-jolo-issuer:0.0.1a
+    environment:
+      NODE_ENV: "production"
+      ENDPOINT: https://localhost:4040
+      HTTPS_COOKIES: "false"
+      MEMCACHED_URL: memcached:11211
+      # BASE_PATH: "issuer"
+      SENDER_ID: "IdPms001"
+      RECEIVER_ID: "IdPms001"
+      SEAL_eIDAS_CALLBACK_URI: "http://issuer/vc/response/eidas"
+      KEY_PATH: /certs/key.pem
+      CERT_PATH: /certs/cert.pem
+      CERT_PASS: "pass"
+      LINK_REQ_END: http://vm.project-seal.eu:9050/link/request/submit
+    volumes: 
+      - /home/nikos/uPort/uportFullStack/uport-full-stack:/certs
+    ports:
+      - 4040:3000
+
+  #  IdPMS:
+  #   image: endimion13/seal-eidas-idp:0.0.6
+  #   environment:
+  #       - EIDAS_PROPERTIES=CurrentFamilyName,CurrentGivenName,DateOfBirth,PersonIdentifier
+  #       - SP_COUNTRY=GR
+  #       - SP_LOGO=img/logo.png
+  #       - SP_CONFIG_REPOSITORY=/configEidas/
+  #       - SP_SECRET=secret
+  #       - AUTH_DURATION=1800
+  #       - SESSION_MANAGER_URL=https://esmo-gateway.eu
+  #       - KEY_PASS=selfsignedpass
+  #       - JWT_CERT_ALIAS=selfsigned
+  #       - ASYNC_SIGNATURE=true
+  #       - HTTPSIG_CERT_ALIAS=1
+  #       - KEYSTORE_PATH=/certs/keystore.jks
+  #       - STORE_PASS=keystorepass
+  #       - SEAL_SUPPORTED_SIG_ALGORITHMS=RSA
+  #       - SEAL_SUPPORTED_ENC_ALGORITHMS=RSA
+  #       - RESPONSE_SENDER_ID=eIDAS-IdP
+  #       - RESPONSE_RECEIVER=API_GW
+  #       - SEAL_EXPOSE_URL=/as/authenticate
+  #       - SEAL_ENTITY_ID=https://seal.eu/eidas-idp
+  #       - SEAL_DEFAULT_NAME=SEAL_EIDAS_IDP
+  #   volumes: 
+  #       - /home/nikos/NetBeansProjects/seal.eidas.idp/src/test/resources/testKeys/:/certs/    
+  #   ports:
+  #     - 8091:8080
+  #     - 8443:8443
+
+
+
+
+
+  #  nginx: 
+  #    image: nginx:latest
+  #    container_name: production_nginx
+  #    volumes:
+  #       - ./nginx.conf:/etc/nginx/nginx.conf
+  #    ports:
+  #       - 80:80
+  #       - 443:443
