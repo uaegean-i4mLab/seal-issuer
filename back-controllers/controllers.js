@@ -124,8 +124,19 @@ function issueVC(req, res) {
 async function issueVCJolo(req, res, alice) {
   console.log(`controller.js - issueVC:: `);
   // console.log(req.body);
+
   let requestedData = req.body.data;
   let vcType = req.body.vcType;
+  console.log(`issueVCJolo VcType: ${vcType}`);
+  let credType =
+    vcType.indexOf("isErasmus") >= 0
+      ? "UAegean_myID_Card"
+      : vcType.indexOf("EIDAS-EDUGAIN") >= 0
+      ? "UAegean_myLinkedID"
+      : vcType.indexOf("EIDAS") >= 0
+      ? "UAegean_myeIDAS_ID"
+      : "UAegean_myeduGAIN_ID";
+  console.log("HEY I WILL issue a vc with type:: " + credType);
   let isMobile = req.body.isMobile ? true : false;
   let sealSessionId = req.body.sealSession;
   let fetchedData = req.session.userData;
@@ -136,8 +147,8 @@ async function issueVCJolo(req, res, alice) {
   );
 
   let callback = req.baseUrl
-    ? `${req.endpoint}/${req.baseUrl}/offerResponse?vcType=${vcType}&seal=${sealSessionId} `
-    : req.endpoint + `/offerResponse?vcType=${vcType}&seal=${sealSessionId} `;
+    ? `${req.endpoint}/${req.baseUrl}/offerResponse?vcType=${vcType}&seal=${sealSessionId}`
+    : req.endpoint + `/offerResponse?vcType=${vcType}&seal=${sealSessionId}`;
 
   let did = await getSessionData(sealSessionId, "DID");
   await updateSessionData(
@@ -148,16 +159,119 @@ async function issueVCJolo(req, res, alice) {
     })
   );
 
+  console.log("=====>controllers.js MatchingUserAttributes<==========");
+  console.log(matchingUserAttributes);
+
+  let propertiesForCredOffer = [];
+  if (credType === "UAegean_myeduGAIN_ID") {
+    propertiesForCredOffer.push({
+      path: ["$.schacHomeOrganization"],
+      label: "Schac Home Organization",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.mail"],
+      label: "Institutional Email",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.givenName"],
+      label: "Given Name",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.sn"],
+      label: "Surname",
+      value: "",
+    });
+  }
+
+  if (credType === "UAegean_myID_Card") {
+
+/*
+    claimValues.family_name = userData.eidas.family_name;
+    claimValues.given_name = userData.eidas.given_name;
+    claimValues.date_of_birth = userData.eidas.date_of_birth;
+    claimValues.person_identifier = userData.eidas.person_identifier;
+    claimValues.loa = userData.eidas.loa;
+    claimValues.affiliation = userData.eidas.affiliation;
+    claimValues.hostingInstitution = userData.eidas.hostingInstitution;
+    claimValues.starts = userData.eidas.starts;
+    claimValues.expires = userData.eidas.expires;
+*/
+
+    propertiesForCredOffer.push({
+      path: ["$.given_name"],
+      label: "Given Name",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.family_name"],
+      label: "Family Name",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.person_identifier"],
+      label: "Person Identifier",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.date_of_birth"],
+      label: "Date of Birth",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.loa"],
+      label: "Level of Assurance",
+      value: "",
+    });
+
+    propertiesForCredOffer.push({
+      path: ["$.affiliation"],
+      label: "Affiliation",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.hostingInstitution"],
+      label: "Hosting Institution",
+      value: "",
+    });
+
+    propertiesForCredOffer.push({
+      path: ["$.starts"],
+      label: "Program Start",
+      value: "",
+    });
+
+    propertiesForCredOffer.push({
+      path: ["$.expires"],
+      label: "Program Termination",
+      value: "",
+    });
+  }
+
   let aliceCredOffer = await alice.credOfferToken({
     callbackURL: callback,
     offeredCredentials: [
       {
-        type: vcType,
+        type: credType,
+        renderInfo: {
+          renderAs: "document",
+        },
+        credential: {
+          name: credType,
+          display: {
+            properties: propertiesForCredOffer,
+          },
+        },
         // userAttributes: matchingUserAttributes[vcType],
         // userDID: did,
       },
     ],
   });
+
+  console.log("controllers.js::===> The Credential Offer is <=======");
+  console.log(aliceCredOffer._payload.interactionToken._offeredCredentials);
 
   if (vcType.indexOf("isErasmusAegean") >= 0) {
     console.log("issueVCJOLO---- offer is isEramsus ");
@@ -165,10 +279,44 @@ async function issueVCJolo(req, res, alice) {
       callbackURL: callback,
       offeredCredentials: [
         {
-          type: vcType,
+          type: credType,
+          renderInfo: {
+            renderAs: "document",
+          },
+          credential: {
+            name: credType,
+            display: {
+              properties: propertiesForCredOffer,
+            },
+          },
         },
         {
-          type: "SEAL-UAEGEAN_Minimal_ERASMUS_ID",
+          type: "UAegean_Disposable_ID",
+          renderInfo: {
+            renderAs: "document",
+          },
+          credential: {
+            name: "UAegean_Disposable_ID",
+            display: {
+              properties: [
+                { path: ["$.affiliation"], label: "Affiliation", value: "" },
+
+                {
+                  path: ["$.hostingInstitution"],
+                  label: "Hosting Institution",
+                  value: "",
+                },
+
+                { path: ["$.starts"], label: "Program Start", value: "" },
+
+                {
+                  path: ["$.expires"],
+                  label: "Program Termination",
+                  value: "",
+                },
+              ],
+            },
+          },
         },
       ],
     });
@@ -176,9 +324,9 @@ async function issueVCJolo(req, res, alice) {
 
   var code = qr.image(aliceCredOffer.encode(), {
     type: "png",
-    ec_level: "H",
-    size: 20,
-    margin: 10,
+    ec_level: "L",
+    size: 100,
+    margin: 3,
   });
   // let dataBuffer = new Buffer(code);
   // PNG | GIF | etc.
@@ -197,7 +345,7 @@ async function offerResponseJolo(req, res, alice) {
   let matchingUserAttributes = JSON.parse(
     await getSessionData(sealSessionId, "user")
   )[vcType]; //jwt_decode(req.body.token).interactionToken.selectedCredentials[0].userAttributes[userAttributesKey];
-  console.log(matchingUserAttributes);
+  // console.log(matchingUserAttributes);
 
   let userDID = await getSessionData(sealSessionId, "DID");
 
@@ -225,7 +373,8 @@ async function offerResponseJolo(req, res, alice) {
     vcType,
     matchingUserAttributes,
     userDID,
-    req
+    req,
+    sealSessionId
   );
   res.send({ token: alicesIssuance.encode() });
 }
@@ -235,7 +384,8 @@ async function getCredentialIssuanceFromVCType(
   vcType,
   userData,
   userDID,
-  req
+  req,
+  sessionId
 ) {
   //{"SEAL-EIDAS-EDUGAIN":
   //{"eidas":{"given_name":"ΧΡΙΣΤΙΝΑ CHRISTINA","family_name":"ΠΑΛΙΟΚΩΣΤΑ PALIOKOSTA","person_identifier":"GR/GR/ERMIS-58333947","date_of_birth":"1980-01-01",
@@ -245,12 +395,21 @@ async function getCredentialIssuanceFromVCType(
   //"eduPersonEntitlement":"urn:mace:grnet.gr:seal:test","source":"edugain","loa":"low"},
   //"linkLoa":"low"}}
   console.log("getCredentialIssuanceFromVCType");
+  let credType =
+    vcType.indexOf("isErasmus") >= 0
+      ? "UAegean_myID_Card"
+      : vcType.indexOf("EIDAS-EDUGAIN") >= 0
+      ? "UAegean_myLinkedID"
+      : vcType.indexOf("EIDAS") >= 0
+      ? "UAegean_myeIDAS_ID"
+      : "UAegean_myeduGAIN_ID";
+  console.log("HEY I WILL issue a vc with type:: " + credType);
   const simpleExampleCredMetadata = {
-    type: ["Credential", vcType],
-    name: `SEAL myID: ${vcType}`,
+    type: ["Credential", credType],
+    name: credType,
     context: [
       {
-        SimpleExample: `https://seal.project.eu/terms/${vcType}`,
+        SimpleExample: `https://seal.project.eu/terms/${credType}`,
         schema: "https://schema.org/",
         source: "schema:source",
       },
@@ -258,7 +417,7 @@ async function getCredentialIssuanceFromVCType(
   };
 
   let claimValues = {
-    source: userData.source,
+    // source: userData.source,
   };
 
   if (vcType.indexOf("EIDAS") >= 0 || vcType.indexOf("isErasmusAegean") >= 0) {
@@ -269,13 +428,13 @@ async function getCredentialIssuanceFromVCType(
     simpleExampleCredMetadata.context[0].loa = "schema:loa";
     claimValues.family_name = userData.eidas.family_name;
     claimValues.given_name = userData.eidas.given_name;
-    claimValues.date_of_birth = userData.eidas.date_of_birth;
-    claimValues.person_identifier = userData.eidas.person_identifier;
-    claimValues.loa = userData.eidas.loa;
-    claimValues.affiliation = userData.eidas.affiliation;
-    claimValues.hostingInstitution = userData.eidas.hostingInstitution;
-    claimValues.starts = userData.eidas.starts;
-    claimValues.expires = userData.eidas.expires;
+    if(userData.eidas.date_of_birth)claimValues.date_of_birth = userData.eidas.date_of_birth;
+    if(userData.eidas.person_identifier)claimValues.person_identifier = userData.eidas.person_identifier;
+    if(userData.eidas.loa)claimValues.loa = userData.eidas.loa;
+    if(userData.eidas.affiliation)claimValues.affiliation = userData.eidas.affiliation;
+    claimValues.hostingInstitution =  "University of the Aegean"//userData.eidas.hostingInstitution;
+    claimValues.starts = "01/10/2021" //userData.eidas.starts;
+    claimValues.expires = "25/02/2022"//userData.eidas.expires;
   }
   if (vcType.indexOf("EDUGAIN") >= 0) {
     simpleExampleCredMetadata.context[0].family_name = "schema:familyName";
@@ -321,12 +480,17 @@ async function getCredentialIssuanceFromVCType(
     "mySecretPassword"
   );
 
+    // console.log("controller.js ====> Alice Cred about Bob WILL ISSUE::")
+    // console.log(alicesCredAboutBob)
+    // console.log(claimValues)
+
+
   const minIdCredential = {
-    type: ["Credential", "SEAL-UAEGEAN_Minimal_ERASMUS_ID"],
-    name: `SEAL myID: ${vcType}`,
+    type: ["Credential", "UAegean_Disposable_ID"],
+    name: `UAegean_Disposable_ID`,
     context: [
       {
-        SimpleExample: `https://seal.project.eu/terms/${vcType}`,
+        SimpleExample: `https://seal.project.eu/terms/${credType}`,
         schema: "https://schema.org/",
         source: "schema:source",
       },
@@ -334,14 +498,14 @@ async function getCredentialIssuanceFromVCType(
   };
 
   let minCredValues = {
-    source: userData.source,
+    // source: userData.source,
   };
   if (userData.eidas) {
     minCredValues.loa = userData.eidas.loa;
-    minCredValues.affiliation = userData.eidas.affiliation;
-    minCredValues.hostingInstitution = userData.eidas.hostingInstitution;
-    minCredValues.starts = userData.eidas.starts;
-    minCredValues.expires = userData.eidas.expires;
+    // minCredValues.affiliation = userData.eidas.affiliation;
+    minCredValues.hostingInstitution = "University of the Aegean"//userData.eidas.hostingInstitution;
+    minCredValues.starts = "01/10/2021"//userData.eidas.starts;
+    minCredValues.expires = "25/02/2022" //userData.eidas.expires;
   }
 
   const alicesInteraction = await alice.processJWT(req.body.token);
@@ -354,11 +518,35 @@ async function getCredentialIssuanceFromVCType(
       },
       "mySecretPassword"
     );
+    
+    publish(
+      JSON.stringify({
+        uuid: sessionId,
+        sessionId: sessionId,
+        status: "sent",
+      })
+    );
+    
     return await alicesInteraction.createCredentialReceiveToken([
       alicesCredAboutBob,
       minCrede,
     ]);
   } else {
+    console.log("controllers.js JOLOCOM, will send credential");
+    console.log(alicesCredAboutBob);
+    // console.log("with claims values")
+    // console.log(claimValues)
+
+
+    publish(
+      JSON.stringify({
+        uuid: sessionId,
+        sessionId: sessionId,
+        status: "sent",
+      })
+    );
+    res.send(response);
+
     return await alicesInteraction.createCredentialReceiveToken([
       alicesCredAboutBob,
     ]);
@@ -523,14 +711,16 @@ async function onlyConnectionRequest(req, res, alice) {
     Updates: updates the session with the variable session.did = true
 */
 async function onlyConnectionResponse(req, res, alice) {
+  console.log("controllers.js onlyConnectionResponse ");
   const sealSessionId = req.query.sealSession; //get the sesionId that is picked up from the response uri
   // retrieve the server sessionId from the SesssionManager
   let serverSession = await getSessionData(sealSessionId, "issuerSession");
 
   const didAuthResponse = await alice.processJWT(req.body.token);
+  // console.log(didAuthResponse)
   // console.log(didAuthResponse.participants.responder.didDocument.did);
   const did = didAuthResponse.participants.responder.didDocument.did;
-  const bobsAuthResponse = await didAuthResponse.createAuthenticationResponse();
+  // const bobsAuthResponse = await didAuthResponse.createAuthenticationResponse();
   // console.log(bobsAuthResponse);
 
   let sessionUpdated = await updateSessionData(sealSessionId, "DID", did);
@@ -543,7 +733,20 @@ async function onlyConnectionResponse(req, res, alice) {
       status: "connected",
     })
   );
-  res.send({ token: bobsAuthResponse.encode() });
+  // console.log((await didAuthResponse.createResolutionResponse()).encode());
+  // res.send((await didAuthResponse.createResolutionResponse()).encode() );
+  let responseToken = await didAuthResponse.createAuthenticationResponse();
+
+  res.set({
+    "access-control-expose-headers": "WWW-Authenticate,Server-Authorization",
+    "content-type": "text/html; charset=utf-8",
+    vary: "origin",
+    "strict-transport-security": "max-age=31536000",
+    "cache-control": "no-cache",
+    "content-length": "0",
+    "content-type": "text/html; charset=utf-8",
+  });
+  res.status(200).end();
 }
 
 /*

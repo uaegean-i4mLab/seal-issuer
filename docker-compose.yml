@@ -8,24 +8,23 @@ services:
 
 
    uportissuer:
-    image: endimion13/seal-jolo-issuer:0.0.1a
+    image: endimion13/seal-jolo-issuer:0.0.2f
     environment:
       NODE_ENV: "production"
-      ENDPOINT: https://localhost:4040
-      HTTPS_COOKIES: "false"
+      ENDPOINT: https://dss1.aegean.gr
+      HTTPS_COOKIES: "true"
       MEMCACHED_URL: memcached:11211
-      # BASE_PATH: "issuer"
-      SENDER_ID: "IdPms001"
-      RECEIVER_ID: "IdPms001"
+      BASE_PATH: "issuer"
+      ACADEMICID_TOKEN_END: https://dss1.aegean.gr/academic-id-check/attributes
+      SENDER_ID: "uPort_ms001"
+      RECEIVER_ID: "eIDAS-IdP"
       SEAL_eIDAS_CALLBACK_URI: "http://issuer/vc/response/eidas"
-      KEY_PATH: /certs/key.pem
-      CERT_PATH: /certs/cert.pem
-      CERT_PASS: "pass"
-      LINK_REQ_END: http://vm.project-seal.eu:9050/link/request/submit
-    volumes: 
-      - /home/nikos/uPort/uportFullStack/uport-full-stack:/certs
+      SEAL_EIDAS_PORT: "8443"
+      SEAL_SM_URI: "localhost"
+      SEAL_SM_PORT: "9090"
     ports:
       - 4040:3000
+
 
   #  IdPMS:
   #   image: endimion13/seal-eidas-idp:0.0.6

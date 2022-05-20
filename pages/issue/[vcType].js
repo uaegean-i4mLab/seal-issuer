@@ -98,7 +98,7 @@ class Issue extends React.Component {
           <div>
             <QrPrompt
               qrData={this.props.qrData}
-              message={"SEAL is requesting to connect your uPort wallet:"}
+              message={"SEAL is requesting to connect your wallet:"}
               permissions={["Push Notifications"]}
               baseUrl={this.props.baseUrl}
             />
@@ -123,7 +123,7 @@ class Issue extends React.Component {
           </Row>
 
           {result}
-          <Row>
+          {/* <Row>
           <div className="col" style={{marginTop:"1.5rem"}}>
             <Link href={this.props.baseUrl?`${this.props.baseUrl}`:"/"}>
               <Button variant="primary" className="float-right">
@@ -131,7 +131,7 @@ class Issue extends React.Component {
               </Button>
             </Link>
           </div>
-        </Row>
+        </Row> */}
         </Layout>
       );
     } else {

@@ -46,7 +46,7 @@ const PairOrCard = props => {
       <div>
         <QrPrompt
           qrData={props.qrData}
-          message={"SEAL is requesting to connect your uPort wallet:"}
+          message={"SEAL is requesting to connect your wallet:"}
           permissions={["Push Notifications"]}
           baseUrl={props.baseUrl}
         />

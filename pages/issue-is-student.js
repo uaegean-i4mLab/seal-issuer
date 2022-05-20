@@ -186,7 +186,7 @@ class IssueEidas extends React.Component {
         </Row>
         {credentialCard}
 
-        <Row>
+        {/* <Row>
           <div className="col" style={{ marginTop: "1.5rem" }}>
             <Link href={this.props.baseUrl ? `${this.props.baseUrl}` : "/"}>
               <Button variant="primary" className="float-right">
@@ -194,7 +194,7 @@ class IssueEidas extends React.Component {
               </Button>
             </Link>
           </div>
-        </Row>
+        </Row> */}
       </Layout>
     );
   }

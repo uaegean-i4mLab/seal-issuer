@@ -7,9 +7,13 @@ const jsesc = require("jsesc");
 const keyId =
   "d9db7614221d9d397f98d44f90eb15db5a4e0d842ffadfd7f1651963ccb22437";
 
+  // https://vm.project-seal.grnet.gr/
+
+
 const SEAL_SM_URI = process.env.SEAL_SM_URI
   ? process.env.SEAL_SM_URI
-  : "vm.project-seal.eu";
+  : //"vm.project-seal.eu"; 
+  "localhost"//"vm.project-seal.grnet.gr"
 const SEAL_SM_PORT = process.env.SEAL_SM_PORT
   ? process.env.SEAL_SM_PORT
   : "9090";
@@ -23,13 +27,15 @@ const SEAL_SM_PORT = process.env.SEAL_SM_PORT
 
 const SEAL_EIDAS_URI = process.env.SEAL_EIDAS_URI
   ? process.env.SEAL_EIDAS_URI
-  : "vm.project-seal.eu";
+  : //"vm.project-seal.eu"; 
+  "vm.project-seal.grnet.gr"
 const SEAL_EIDAS_PORT = process.env.SEAL_EIDAS_PORT
   ? process.env.SEAL_EIDAS_PORT
   : "8091";
 const SEAL_EDUGAIN_URI = process.env.SEAL_EDUGAIN_URI
   ? process.env.SEAL_EDUGAIN_URI
-  : "vm.project-seal.eu";
+  : //"vm.project-seal.eu"; 
+  "vm.project-seal.grnet.gr"
 const SEAL_EDUGAIN_PORT = process.env.SEAL_EDUGAIN_PORT
   ? process.env.SEAL_EDUGAIN_PORT
   : "";
@@ -50,6 +56,7 @@ function startSession() {
       SEAL_SM_PORT
     )
       .then((response) => {
+        console.log(response)
         resolve(response.sessionData.sessionId);
       })
       .catch((err) => {

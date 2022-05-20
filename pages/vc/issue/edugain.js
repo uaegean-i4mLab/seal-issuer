@@ -204,11 +204,19 @@ class IssueEdugain extends React.Component {
         `${this.props.baseUrl}/vc/make-edugain-token?sessionId=${this.props.sealSession}`
       )
       .then((data) => {
-        // console.log(`the data is::`);
-        // console.log(data);
-        let theUrl = this.props.edugainUri.indexOf("https" >= 0) ? this.props.edugainUri : `http://${this.props.edugainUri}`
-        window.location.href = `${theUrl}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`;
-        return null;
+        console.log("***********")
+        console.log(this.props.edugainUri)
+        console.log(this.props.edugainUri.indexOf("https") >= 0)
+        let theUrl = this.props.edugainUri.indexOf("https") >= 0
+          ? this.props.edugainUri
+          : `https://${this.props.edugainUri}`;
+
+          console.log("!!!!!")
+          console.log(theUrl)
+          console.log("!!!!!")
+
+          console.log(`${theUrl}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`)
+          window.location.href = `${theUrl}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`;
       });
   }
 

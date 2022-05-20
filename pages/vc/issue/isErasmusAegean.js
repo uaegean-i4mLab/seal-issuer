@@ -14,6 +14,7 @@ import {
   setSealSession,
   setEidasUriPort,
   setEidasRedirectUri,
+  setEdugainUriPort,
 } from "../../../store";
 import Layout from "../../../components/Layout";
 import { connect } from "react-redux";
@@ -43,10 +44,13 @@ class IssueIsErasmusAegean extends React.Component {
     this.isFetching = props.isFetching;
     this.sessionData = props.sessionData;
     this.proceedWithEidasAuth = this.proceedWithEidasAuth.bind(this);
+    // this.proceedWithEdugainAuth = this.proceedWithEdugainAuth.bind(this);
+    this.proceedWithLocalLDAP = this.proceedWithLocalLDAP.bind(this);
     this.hasRequiredAttributes =
       props.sessionData !== null &&
       props.sessionData !== undefined &&
-      props.sessionData.eidas !== undefined;
+      (props.sessionData.eidas !== undefined ||
+        props.sessionData.edugain !== undefined);
   }
 
   static async getInitialProps({ reduxStore, req }) {
@@ -67,6 +71,7 @@ class IssueIsErasmusAegean extends React.Component {
       );
       reduxStore.dispatch(setEidasUriPort(req.eidasUri, req.eidasPort));
       reduxStore.dispatch(setEidasRedirectUri(req.eidasRedirectUri));
+      reduxStore.dispatch(setEdugainUriPort(req.edugainUri, req.edugainPort));
     } else {
       if (reduxStore.getState().sessionData) {
         userSessionData = reduxStore.getState().sessionData;
@@ -105,6 +110,10 @@ class IssueIsErasmusAegean extends React.Component {
       let toSelect = [this.props.sessionData.eidas];
       this.props.setEidasToSelection(toSelect);
     }
+    if (this.props.sessionData && this.props.sessionData.edugain) {
+      let toSelect = [this.props.sessionData.edugain];
+      this.props.setEdugainToSelection(toSelect);
+    }
 
     if (!this.props.DID) {
       //if DID auth has not been completed
@@ -129,8 +138,14 @@ class IssueIsErasmusAegean extends React.Component {
         );
       }
     }
-    let updateUrl = this.props.baseUrl !== ""?`${this.props.baseUrl}seal/update-session`:`/seal/update-session`
-    console.log(updateUrl)
+    // let updateUrl = this.props.baseUrl !== ""?`${this.props.baseUrl}seal/update-session`:`/seal/update-session`
+    // console.log(updateUrl)
+    let updateUrl =
+      this.props.baseUrl !== ""
+        ? `${this.props.baseUrl}seal/update-session`
+        : `/seal/update-session`;
+    // console.log("!!!!!!!!!!!!!!!!1");
+    // console.log(updateUrl);
     axios
       .post(updateUrl, {
         sessionId: this.props.sealSession,
@@ -138,46 +153,113 @@ class IssueIsErasmusAegean extends React.Component {
         variableValue: this.props.eidasRedirectUri,
       })
       .then((data) => {
-        console.log(data)
-        console.log(`isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`);
+        console.log(data);
+        console.log(
+          `isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`
+        );      
       });
-
   }
 
   componentDidUpdate() {
-    let updateUrl = this.props.baseUrl !== ""?`${this.props.baseUrl}seal/update-session`:`/seal/update-session`
-    axios
-      .post(updateUrl, {
-        sessionId: this.props.sealSession,
-        variableName: "ClientCallbackAddr",
-        variableValue: this.props.eidasRedirectUri,
-      })
-      .then((data) => {
-        console.log(data)
-        console.log(`isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`);
-      });
+    // let updateUrl = this.props.baseUrl !== ""?`${this.props.baseUrl}seal/update-session`:`/seal/update-session`
+    // axios
+    //   .post(updateUrl, {
+    //     sessionId: this.props.sealSession,
+    //     variableName: "ClientCallbackAddr",
+    //     variableValue: this.props.eidasRedirectUri,
+    //   })
+    //   .then((data) => {
+    //     console.log(data)
+    //     console.log(`isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`);
+    //   });
   }
 
-  proceedWithEidasAuth() {
-    //make msToken
-    console.log("proceed  with ");
-    axios
-      .get(
-        `${this.props.baseUrl}/vc/make-eidas-token?sessionId=${this.props.sealSession}`
-      )
-      .then((data) => {
-        console.log(`the data is::`);
-        console.log(data);
-        window.location.href = `https://${this.props.eidasUri}:${this.props.eidasPort}/eidas-idp/is/query?msToken=${data.data.additionalData}`;
-        return null;
-      });
-  }
+  // proceedWithEidasAuth() {
+  //   let updateUrl =
+  //   this.props.baseUrl !== ""
+  //     ? `${this.props.baseUrl}seal/update-session`
+  //     : `/seal/update-session`;
+  // axios
+  //   .post(updateUrl, {
+  //     sessionId: this.props.sealSession,
+  //     variableName: "ClientCallbackAddr",
+  //     variableValue: this.props.eidasRedirectUri,
+  //   })
+  //   .then((data) => {
+  //     console.log(data);
+  //     console.log(
+  //       `isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`
+  //     );
+
+  // axios
+  //     .get(
+  //       `${this.props.baseUrl}/vc/make-eidas-token?sessionId=${this.props.sealSession}`
+  //     )
+  //     .then((data) => {
+  //       console.log(`the data is::`);
+  //       console.log(data);
+  //       window.location.href = `https://${this.props.eidasUri}:${this.props.eidasPort}/eidas-idp/is/query?msToken=${data.data.additionalData}`;
+  //       return null;
+  //     });  });
+  //   }
+    // async proceedWithEdugainAuth() {
+    //   // register the callbackUri to the SessionManager
+    //   let makeEdugainCallbackToken = await axios.get(
+    //     `${this.props.baseUrl}/vc/make-edugain-callback-token?sessionId=${this.props.sealSession}`
+    //   );
+    //   await axios.post(`${this.props.baseUrl}seal/update-session`, {
+    //     sessionId: this.props.sealSession,
+    //     variableName: "ClientCallbackAddr",
+    //     variableValue: `${this.props.eidasRedirectUri}?msToken=${makeEdugainCallbackToken.data.additionalData}`,
+    //   });
+    //   await axios.post(`${this.props.baseUrl}seal/update-session`, {
+    //     sessionId: this.props.sealSession,
+    //     variableName: "dataStore",
+    //     variableValue: JSON.stringify({}),
+    //   });
+    //   console.log("edugain.js:: session updated");
+  
+    //   axios
+    //     .get(
+    //       `${this.props.baseUrl}/vc/make-edugain-token?sessionId=${this.props.sealSession}`
+    //     )
+    //     .then((data) => {
+    //       // console.log(`the data is::`);
+    //       // console.log(data);
+    //       let theUrl = this.props.edugainUri.indexOf("https" >= 0)
+    //         ? this.props.edugainUri
+    //         : `http://${this.props.edugainUri}`;
+    //       window.location.href = `https://${this.props.edugainUri}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`;
+    //       //`${theUrl}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`;
+    //       return null;
+    //     });
+    // }
+
+    async proceedWithLocalLDAP() {
+      let sessionFrag = this.props.sealSession
+        ? `?session=${this.props.sealSession}`
+        : "";
+        window.location.href = this.props.baseUrl
+        ? `${this.props.baseUrl}uaegean-seal-usability/authenticate${sessionFrag}`
+        : `${this.props.baseUrl}/uaegean-seal-usability/authenticate${sessionFrag}`;
+      
+    }
+
+
+    async proceedWithEidasAuth() {
+      let sessionFrag = this.props.sealSession
+        ? `?session=${this.props.sealSession}`
+        : "";
+        window.location.href = this.props.baseUrl
+        ? `${this.props.baseUrl}eidas/response${sessionFrag}`
+        : `${this.props.baseUrl}/eidas/response${sessionFrag}`;
+    }
 
   render() {
-    let stepNumber = !this.props.DID ? 0 : this.hasRequiredAttributes ? 2 : 1;
+    let stepNumber =  this.props.vcSent?3:!this.props.DID ? 0 : this.hasRequiredAttributes ? 2 : 1;
     let stepperSteps = [
       { title: "Pair your wallet" },
-      { title: 'Authenticate over "eIDAS-eID"' },
+      { title: 'Authenticate over "eIDAS eID,  or email"' },
       { title: "Request Issuance" },
     ];
 
@@ -202,10 +284,42 @@ class IssueIsErasmusAegean extends React.Component {
     }
 
     let eIDASLoginButton = !this.hasRequiredAttributes ? (
-      <Button onClick={this.proceedWithEidasAuth}>eIDAS</Button>
+      <div>
+        <div className="row">
+          <div className="col text-center">
+            <Button
+              onClick={this.proceedWithEidasAuth}
+              style={{ width: "12rem", marginBottom: "0.7rem" }}
+            >
+              eIDAS eID
+            </Button>
+          </div>
+
+          {/* <div className="col text-center">
+            <Button
+              onClick={this.proceedWithEdugainAuth}
+              style={{ width: "12rem", marginBottom: "0.7rem" }}
+            >
+              eduGAIN
+            </Button>
+          </div> */}
+
+
+        </div>
+        <div className="row">
+          <div className="col text-center">
+            <Button
+              onClick={this.proceedWithLocalLDAP}
+              style={{ width: "12rem", marginBottom: "0.7rem" }}
+            >
+              Login with your email
+            </Button>
+          </div>
+        </div>
+      </div>
     ) : (
         <Button variant="primary" disabled>
-          eIDAS
+          Authenticate
         </Button>
       );
 
@@ -219,18 +333,29 @@ class IssueIsErasmusAegean extends React.Component {
       />
     );
 
-    let eidasCard = this.props.errorUser ? (<div> <p>Your are not registerd as a University of the Aegean Erasmus Student</p> <div>Reason: {this.props.errorUser}</div></div>) : (
+    let eidasCard = this.props.errorUser ? (
+      <div>
+        {" "}
+        <p>
+          Your are not registerd as a University of the Aegean Erasmus Student
+        </p>{" "}
+        <div>Reason: {this.props.errorUser}</div>
+      </div>
+    ) : (
       <Card className="text-center" style={{ marginTop: "2rem" }}>
-        <Card.Header>Issue a Verifiable Credential proving you are an Erasmus student @UAegean</Card.Header>
+        <Card.Header>
+          Issue a myIDs Card, proving your affiliation with UAegean
+        </Card.Header>
         <Card.Body>
           <Card.Title>
             {this.hasRequiredAttributes
               ? "Credentials Issuance is ready!"
-              : "Please authenticate to the required data sources"}
+              : "Please authenticate to one of the following data sources"}
           </Card.Title>
           <Card.Text>
-            Once you have authenticated through the required data sources, click
-            the "Issue" button to generate and receive your VC .
+            Once you have authenticated through one of the required data sources
+            (i.e. eIDAS eID or via e-mail), click the "Issue" button to generate
+            and receive your identity card.
           </Card.Text>
           <Container>
             <Row>
@@ -290,12 +415,18 @@ function mapStateToProps(state) {
     endpoint: state.endpoint,
     eidasRedirectUri: state.eidasRedirectUri,
     credQROffer: state.credQROffer,
+    edugainUri: state.edugainUri,
+    edugainPort: state.edugainPort,
+    edugainRedirectUri: state.edugainRedirectUri,
   };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setEidasToSelection: (set) => {
+      dispatch(addSetToSelection(set));
+    },
+    setEdugainToSelection: (set) => {
       dispatch(addSetToSelection(set));
     },
     setSteps: (steps) => {
@@ -329,6 +460,9 @@ const mapDispatchToProps = (dispatch) => {
 
     setEidasRedirect: (uri) => {
       dispatch(setEidasRedirectUri(uri));
+    },
+    setEdugain: (uri, data) => {
+      dispatch(setEdugainUriPort(uri, data));
     },
   };
 };

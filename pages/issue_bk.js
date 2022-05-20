@@ -115,13 +115,13 @@ class Issue extends React.Component {
           </Row>
 
           {result}
-          <div className="col">
+          {/* <div className="col">
             <Link href="/">
               <Button variant="primary" className="float-right">
                 Home
               </Button>
             </Link>
-          </div>
+          </div> */}
         </Layout>
       );
     } else {

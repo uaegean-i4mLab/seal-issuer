@@ -20,6 +20,7 @@ class SSE extends React.Component {
         const data = JSON.parse(evt.data); //returns a string so needs further parsing into a JSON
         // Use data here
         let eventData = JSON.parse(data);
+        console.log("SSE.js eventData:")
         console.log(eventData);
 
         if (eventData.sessionId && this.props.serverSessionId) {

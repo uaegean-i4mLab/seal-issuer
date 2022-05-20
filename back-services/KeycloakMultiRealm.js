@@ -19,7 +19,7 @@ function KeycloakMultiRealm(config, keycloakConfigs) {
     if (process.env.BASE_PATH) {
       url = url.replace(`/${process.env.BASE_PATH}/`,'')
     }
-
+    console.log(`KeycloakMultireal.js the realm name is ${url.split("/")[1]}`);
     return url.split("/")[1];
   };
   keycloakConfigs.forEach(kConfig => {
@@ -34,9 +34,8 @@ KeycloakMultiRealm.prototype.middleware = function(options) {
     const realmName = this.getRealmName(req);
     // console.log(`the keycloakRealm is ${realmName}`);
 
-    if (realmName === "test" || realmName === "esmo" || realmName === "eidas" 
-    || realmName === "taxis") {
-      console.log(`keylcoakMultiRealm.js:: ${realmName}`);
+    if (realmName === "uaegean-seal-usability"  || realmName === "eidas") {
+      console.log(`keylcoakMultiRealm.js::--${realmName}--`);
       const keycloak = this.keycloakPerRealm[realmName];
       // console.log(`***********keycloakMultiRealm******`)
       // console.log(keycloak)

@@ -51,7 +51,7 @@ const ConnectMobile = (props) => {
         <Container>
           <Row>
             <p id="uPortMessage">
-              SEAL is requesting to connect your uPort wallet:
+              SEAL is requesting to connect your  wallet:
             </p>
             <style jsx>
               {`

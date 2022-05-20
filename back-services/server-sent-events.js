@@ -4,6 +4,7 @@ const emitter = new EventEmitter();
 
 function publish(eventData) {
     // Emit events here recieved from Github/Twitter APIs
+    console.log(`will publish ${eventData}`)
     emitter.emit("event", eventData);
   }
 

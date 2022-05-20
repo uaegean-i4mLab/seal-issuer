@@ -191,13 +191,13 @@ class IssueEidas extends React.Component {
         {credentialCard}
 
         <Row>
-          <div className="col" style={{ marginTop: "1.5rem" }}>
+          {/* <div className="col" style={{ marginTop: "1.5rem" }}>
             <Link href={this.props.baseUrl ? `${this.props.baseUrl}` : "/"}>
               <Button variant="primary" className="float-right">
                 Home
               </Button>
             </Link>
-          </div>
+          </div> */}
         </Row>
       </Layout>
     );
