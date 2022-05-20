@@ -123,9 +123,9 @@ class DisplayDidAuth extends React.Component {
         </Row>
         {result}
 
-        <Row>
+        {/* <Row>
           <HomeButton baseUrl={this.props.baseUrl} />
-        </Row>
+        </Row> */}
       </Layout>
     );
   }

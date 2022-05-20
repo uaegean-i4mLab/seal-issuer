@@ -185,10 +185,31 @@ async function issueVCJolo(req, res, alice) {
       value: "",
     });
   }
+  if (credType === "UAegean_myeIDAS_ID") {
+    propertiesForCredOffer.push({
+      path: ["$.given_name"],
+      label: "Given Name",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.family_name"],
+      label: "Family Name",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.person_identifier"],
+      label: "Person Identifier",
+      value: "",
+    });
+    propertiesForCredOffer.push({
+      path: ["$.loa"],
+      label: "LoA",
+      value: "",
+    });
+  }
 
   if (credType === "UAegean_myID_Card") {
-
-/*
+    /*
     claimValues.family_name = userData.eidas.family_name;
     claimValues.given_name = userData.eidas.given_name;
     claimValues.date_of_birth = userData.eidas.date_of_birth;
@@ -428,48 +449,21 @@ async function getCredentialIssuanceFromVCType(
     simpleExampleCredMetadata.context[0].loa = "schema:loa";
     claimValues.family_name = userData.eidas.family_name;
     claimValues.given_name = userData.eidas.given_name;
-    if(userData.eidas.date_of_birth)claimValues.date_of_birth = userData.eidas.date_of_birth;
-    if(userData.eidas.person_identifier)claimValues.person_identifier = userData.eidas.person_identifier;
-    if(userData.eidas.loa)claimValues.loa = userData.eidas.loa;
-    if(userData.eidas.affiliation)claimValues.affiliation = userData.eidas.affiliation;
-    claimValues.hostingInstitution =  "University of the Aegean"//userData.eidas.hostingInstitution;
-    claimValues.starts = "01/10/2021" //userData.eidas.starts;
-    claimValues.expires = "25/02/2022"//userData.eidas.expires;
+    if (userData.eidas.date_of_birth)
+      claimValues.date_of_birth = userData.eidas.date_of_birth;
+    if (userData.eidas.person_identifier)
+      claimValues.person_identifier = userData.eidas.person_identifier;
+    if (userData.eidas.loa) claimValues.loa = userData.eidas.loa;
   }
-  if (vcType.indexOf("EDUGAIN") >= 0) {
-    simpleExampleCredMetadata.context[0].family_name = "schema:familyName";
-    simpleExampleCredMetadata.context[0].given_name = "schema:name";
-    simpleExampleCredMetadata.context[0].date_of_birth = "schema:brithDate";
-    simpleExampleCredMetadata.context[0].person_identifier = "schema:Person";
-    simpleExampleCredMetadata.context[0].loa = "schema:loa";
-    claimValues.cn = userData.edugain.cn;
-    claimValues.eduOrgHomePageURI = userData.edugain.eduOrgHomePageURI;
-    claimValues.eduOrgLegalName = userData.edugain.eduOrgLegalName;
-    claimValues.eduOrgPostalAddress = userData.edugain.eduOrgPostalAddress;
-    claimValues.l = userData.edugain.l;
-    claimValues.schacExpiryDate = userData.edugain.schacExpiryDate;
-    claimValues.schacHomeOrganization = userData.edugain.schacHomeOrganization;
-    claimValues.eduPersonAffiliation = userData.edugain.eduPersonAffiliation;
-    claimValues.eduPersonPrincipalName =
-      userData.edugain.eduPersonPrincipalName;
-    claimValues.eduPersonPrincipalNamePrior =
-      userData.edugain.eduPersonPrincipalNamePrior;
-    claimValues.eduPersonOrgUnitDN = userData.edugain.eduPersonOrgUnitDN;
-    claimValues.eduPersonUniqueId = userData.edugain.eduPersonUniqueId;
-    claimValues.displayName = userData.edugain.displayName;
-    claimValues.givenName = userData.edugain.givenName;
-    claimValues.mail = userData.edugain.mail;
-    claimValues.mobile = userData.edugain.mobile;
-    claimValues.o = userData.edugain.o;
-    claimValues.sn = userData.edugain.sn;
-    claimValues.schacPersonalUniqueCode =
-      userData.edugain.schacPersonalUniqueCode;
-    claimValues.schacPersonalUniqueID = userData.edugain.schacPersonalUniqueID;
-    claimValues.eduPersonTargetedID = userData.edugain.eduPersonTargetedID;
+  if (vcType.indexOf("isErasmusAegean") >= 0) {
+    if (userData.eidas.affiliation)
+      claimValues.affiliation = userData.eidas.affiliation;
+    claimValues.hostingInstitution = "University of the Aegean"; //userData.eidas.hostingInstitution;
+    claimValues.starts = "01/10/2021"; //userData.eidas.starts;
+    claimValues.expires = "25/08/2022"; //userData.eidas.expires;
   }
-  if (vcType.indexOf("EIDAS") >= 0 && vcType.indexOf("EDUGAIN")) {
-    claimValues.linkLoa = "low";
-  }
+ 
+ 
 
   const alicesCredAboutBob = await alice.signedCredential(
     {
@@ -480,10 +474,9 @@ async function getCredentialIssuanceFromVCType(
     "mySecretPassword"
   );
 
-    // console.log("controller.js ====> Alice Cred about Bob WILL ISSUE::")
-    // console.log(alicesCredAboutBob)
-    // console.log(claimValues)
-
+  // console.log("controller.js ====> Alice Cred about Bob WILL ISSUE::")
+  // console.log(alicesCredAboutBob)
+  // console.log(claimValues)
 
   const minIdCredential = {
     type: ["Credential", "UAegean_Disposable_ID"],
@@ -503,9 +496,9 @@ async function getCredentialIssuanceFromVCType(
   if (userData.eidas) {
     minCredValues.loa = userData.eidas.loa;
     // minCredValues.affiliation = userData.eidas.affiliation;
-    minCredValues.hostingInstitution = "University of the Aegean"//userData.eidas.hostingInstitution;
-    minCredValues.starts = "01/10/2021"//userData.eidas.starts;
-    minCredValues.expires = "25/02/2022" //userData.eidas.expires;
+    minCredValues.hostingInstitution = "University of the Aegean"; //userData.eidas.hostingInstitution;
+    minCredValues.starts = "01/10/2021"; //userData.eidas.starts;
+    minCredValues.expires = "25/02/2022"; //userData.eidas.expires;
   }
 
   const alicesInteraction = await alice.processJWT(req.body.token);
@@ -518,7 +511,7 @@ async function getCredentialIssuanceFromVCType(
       },
       "mySecretPassword"
     );
-    
+
     publish(
       JSON.stringify({
         uuid: sessionId,
@@ -526,7 +519,7 @@ async function getCredentialIssuanceFromVCType(
         status: "sent",
       })
     );
-    
+
     return await alicesInteraction.createCredentialReceiveToken([
       alicesCredAboutBob,
       minCrede,
@@ -537,7 +530,6 @@ async function getCredentialIssuanceFromVCType(
     // console.log("with claims values")
     // console.log(claimValues)
 
-
     publish(
       JSON.stringify({
         uuid: sessionId,
@@ -545,7 +537,6 @@ async function getCredentialIssuanceFromVCType(
         status: "sent",
       })
     );
-    res.send(response);
 
     return await alicesInteraction.createCredentialReceiveToken([
       alicesCredAboutBob,

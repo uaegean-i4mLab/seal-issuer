@@ -19,7 +19,6 @@ import Layout from "../../../components/Layout";
 import { connect } from "react-redux";
 import { Button, Row, Col, Card, Container } from "react-bootstrap";
 import MyStepper from "../../../components/Stepper";
-import HomeButton from "../../../components/HomeButton";
 import IssueVCButton from "../../../components/IssueVCButton";
 import PairOrCard from "../../../components/PairOrCard";
 import ConnectMobile from "../../../components/ConnectMobile";
@@ -314,9 +313,9 @@ class IssueEdugain extends React.Component {
         </Row>
         {result}
 
-        <Row>
+        {/* <Row>
           <HomeButton baseUrl={this.props.baseUrl} />
-        </Row>
+        </Row> */}
       </Layout>
     );
   }

@@ -20,7 +20,6 @@ import Layout from "../../../components/Layout";
 import { connect } from "react-redux";
 import { Button, Row, Col, Card, Container } from "react-bootstrap";
 import MyStepper from "../../../components/Stepper";
-import HomeButton from "../../../components/HomeButton";
 import IssueVCButton from "../../../components/IssueVCButton";
 import PairOrCard from "../../../components/PairOrCard";
 import ConnectMobile from "../../../components/ConnectMobile";
@@ -156,107 +155,38 @@ class IssueIsErasmusAegean extends React.Component {
         console.log(data);
         console.log(
           `isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`
-        );      
+        );
       });
   }
 
-  componentDidUpdate() {
-    // let updateUrl = this.props.baseUrl !== ""?`${this.props.baseUrl}seal/update-session`:`/seal/update-session`
-    // axios
-    //   .post(updateUrl, {
-    //     sessionId: this.props.sealSession,
-    //     variableName: "ClientCallbackAddr",
-    //     variableValue: this.props.eidasRedirectUri,
-    //   })
-    //   .then((data) => {
-    //     console.log(data)
-    //     console.log(`isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`);
-    //   });
+  componentDidUpdate() {}
+
+  async proceedWithLocalLDAP() {
+    let sessionFrag = this.props.sealSession
+      ? `?session=${this.props.sealSession}`
+      : "";
+    window.location.href = this.props.baseUrl
+      ? `${this.props.baseUrl}uaegean-seal-usability/authenticate${sessionFrag}`
+      : `${this.props.baseUrl}/uaegean-seal-usability/authenticate${sessionFrag}`;
   }
 
-  // proceedWithEidasAuth() {
-  //   let updateUrl =
-  //   this.props.baseUrl !== ""
-  //     ? `${this.props.baseUrl}seal/update-session`
-  //     : `/seal/update-session`;
-  // axios
-  //   .post(updateUrl, {
-  //     sessionId: this.props.sealSession,
-  //     variableName: "ClientCallbackAddr",
-  //     variableValue: this.props.eidasRedirectUri,
-  //   })
-  //   .then((data) => {
-  //     console.log(data);
-  //     console.log(
-  //       `isErasmusAegean.js:: session updated with ${this.props.eidasRedirectUri}`
-  //     );
-
-  // axios
-  //     .get(
-  //       `${this.props.baseUrl}/vc/make-eidas-token?sessionId=${this.props.sealSession}`
-  //     )
-  //     .then((data) => {
-  //       console.log(`the data is::`);
-  //       console.log(data);
-  //       window.location.href = `https://${this.props.eidasUri}:${this.props.eidasPort}/eidas-idp/is/query?msToken=${data.data.additionalData}`;
-  //       return null;
-  //     });  });
-  //   }
-    // async proceedWithEdugainAuth() {
-    //   // register the callbackUri to the SessionManager
-    //   let makeEdugainCallbackToken = await axios.get(
-    //     `${this.props.baseUrl}/vc/make-edugain-callback-token?sessionId=${this.props.sealSession}`
-    //   );
-    //   await axios.post(`${this.props.baseUrl}seal/update-session`, {
-    //     sessionId: this.props.sealSession,
-    //     variableName: "ClientCallbackAddr",
-    //     variableValue: `${this.props.eidasRedirectUri}?msToken=${makeEdugainCallbackToken.data.additionalData}`,
-    //   });
-    //   await axios.post(`${this.props.baseUrl}seal/update-session`, {
-    //     sessionId: this.props.sealSession,
-    //     variableName: "dataStore",
-    //     variableValue: JSON.stringify({}),
-    //   });
-    //   console.log("edugain.js:: session updated");
-  
-    //   axios
-    //     .get(
-    //       `${this.props.baseUrl}/vc/make-edugain-token?sessionId=${this.props.sealSession}`
-    //     )
-    //     .then((data) => {
-    //       // console.log(`the data is::`);
-    //       // console.log(data);
-    //       let theUrl = this.props.edugainUri.indexOf("https" >= 0)
-    //         ? this.props.edugainUri
-    //         : `http://${this.props.edugainUri}`;
-    //       window.location.href = `https://${this.props.edugainUri}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`;
-    //       //`${theUrl}:${this.props.edugainPort}/is/query?msToken=${data.data.additionalData}`;
-    //       return null;
-    //     });
-    // }
-
-    async proceedWithLocalLDAP() {
-      let sessionFrag = this.props.sealSession
-        ? `?session=${this.props.sealSession}`
-        : "";
-        window.location.href = this.props.baseUrl
-        ? `${this.props.baseUrl}uaegean-seal-usability/authenticate${sessionFrag}`
-        : `${this.props.baseUrl}/uaegean-seal-usability/authenticate${sessionFrag}`;
-      
-    }
-
-
-    async proceedWithEidasAuth() {
-      let sessionFrag = this.props.sealSession
-        ? `?session=${this.props.sealSession}`
-        : "";
-        window.location.href = this.props.baseUrl
-        ? `${this.props.baseUrl}eidas/response${sessionFrag}`
-        : `${this.props.baseUrl}/eidas/response${sessionFrag}`;
-    }
+  async proceedWithEidasAuth() {
+    let sessionFrag = this.props.sealSession
+      ? `?session=${this.props.sealSession}`
+      : "";
+    window.location.href = this.props.baseUrl
+      ? `${this.props.baseUrl}eidas/erasmus/response${sessionFrag}`
+      : `${this.props.baseUrl}/eidas/erasmus/response${sessionFrag}`;
+  }
 
   render() {
-    let stepNumber =  this.props.vcSent?3:!this.props.DID ? 0 : this.hasRequiredAttributes ? 2 : 1;
+    let stepNumber = this.props.vcSent
+      ? 3
+      : !this.props.DID
+      ? 0
+      : this.hasRequiredAttributes
+      ? 2
+      : 1;
     let stepperSteps = [
       { title: "Pair your wallet" },
       { title: 'Authenticate over "eIDAS eID,  or email"' },
@@ -303,8 +233,6 @@ class IssueIsErasmusAegean extends React.Component {
               eduGAIN
             </Button>
           </div> */}
-
-
         </div>
         <div className="row">
           <div className="col text-center">
@@ -318,10 +246,10 @@ class IssueIsErasmusAegean extends React.Component {
         </div>
       </div>
     ) : (
-        <Button variant="primary" disabled>
-          Authenticate
-        </Button>
-      );
+      <Button variant="primary" disabled>
+        Authenticate
+      </Button>
+    );
 
     let issueVCBut = (
       <IssueVCButton
@@ -391,9 +319,9 @@ class IssueIsErasmusAegean extends React.Component {
         </Row>
         {result}
 
-        <Row>
+        {/* <Row>
           <HomeButton baseUrl={this.props.baseUrl} />
-        </Row>
+        </Row> */}
       </Layout>
     );
   }
@@ -467,4 +395,7 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(IssueIsErasmusAegean);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(IssueIsErasmusAegean);
