@@ -61,7 +61,7 @@ If you want to learn more about the "SEAL-VC-ISSUER" please read the material av
 
 ---
 
-*Disclaimer: Although we tested the code extensively, the "PALAEMON-DB-PROXY" is a research
+*Disclaimer: Although we tested the code extensively, the "SEAL-VC-ISSUER" is a research
 prototype that may contain bugs. We take no responsibility for and give no warranties in respect of using the code.*
 
 
